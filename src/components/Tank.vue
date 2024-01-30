@@ -85,6 +85,6 @@ button {
   position: absolute;
   bottom: 0;
   height: 0;
-  transition: max-height 20ms linear;
+  transition: max-height 50ms linear;
 }
 </style>

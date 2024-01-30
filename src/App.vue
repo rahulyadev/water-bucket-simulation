@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { reactive, onUnmounted } from "vue";
+import { reactive, onMounted, onUnmounted } from "vue";
 import Tank from "./components/Tank.vue";
 
 const tanks = reactive([
@@ -34,11 +34,11 @@ const startFilling = (index) => {
   console.log("startFilling tank", tank);
   if (!tank.addIntervalId) {
     tank.addIntervalId = setInterval(() => {
-      const intervalSeconds = 20 / 1000;
+      const intervalSeconds = 50 / 1000;
       const inflowRatePerSecond = 20;
       const addAmount = (inflowRatePerSecond * intervalSeconds) / 100;
       tank.buffer = tank.buffer + addAmount * 100;
-    }, 20);
+    }, 50);
   }
 };
 
@@ -102,44 +102,35 @@ const distributeWater = (tanks) => {
     }
   });
 
-  let totalWater = tanks.reduce((acc, tank) => acc + tank.level, 0);
-  console.log("totalWater", totalWater);
-
+  const totalWater = tanks.reduce((acc, tank) => acc + tank.level, 0);
   const averageLevel = totalWater / tanks.length;
-  console.log("averageLevel", averageLevel);
+
+  const totalDifference = tanks.reduce((acc, tank) => acc + Math.abs(tank.level - averageLevel), 0);
+
+  tanks.forEach(tank => {
+    if (tank.level > averageLevel) {
+      const difference = tank.level - averageLevel;
+      const proportion = difference / totalDifference;
+      const adjustment = proportion * flowAmount;
+      tank.level = Math.max(averageLevel, tank.level - adjustment);
+    } else if (tank.level < averageLevel) {
+      const difference = averageLevel - tank.level;
+      const proportion = difference / totalDifference;
+      const adjustment = proportion * flowAmount;
+      tank.level = Math.min(averageLevel, tank.level + adjustment);
+    }
+  });
+
   const isEquilibrium = tanks.every(
-    (tank) => Math.abs(tank.level - averageLevel) < 0.0001
+    (tank) => Math.abs(tank.level - averageLevel) < 0.01
   );
+
   if (isEquilibrium) {
-    console.log("Equilibrium reached:", tanks);
     clearInterval(addWaterToTanksInterval);
     addWaterToTanksInterval = null;
-    return;
+    console.log("Equilibrium reached:", tanks);
   }
-
-  let totalOutflow = 0;
-  tanks.forEach((tank) => {
-    if (tank.level > averageLevel) {
-      totalOutflow += flowAmount;
-      tank.level -= flowAmount;
-    }
-  });
-
-  const totalDeficit = tanks.reduce((acc, tank) => {
-    return tank.level < averageLevel ? acc + (averageLevel - tank.level) : acc;
-  }, 0);
-  tanks.forEach((tank) => {
-    if (tank.level < averageLevel) {
-      const deficitProportion = (averageLevel - tank.level) / totalDeficit;
-      console.log("deficitProportion", tank.id, deficitProportion);
-      const inflow = totalOutflow * deficitProportion;
-      console.log("inflow", tank.id, inflow);
-      tank.level += inflow;
-    }
-  });
 };
-
-// const distributionInterval = setInterval(() => distributeWater(tanks), 200);
 
 </script>
 
