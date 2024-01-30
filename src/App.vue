@@ -26,27 +26,27 @@ const tanks = reactive([
 let addWaterToTanksInterval = setInterval(() => distributeWater(tanks), 50);
 
 const startFilling = (index) => {
-  console.log("startFilling", index, tanks);
+  // console.log("startFilling", index, tanks);
   if (!addWaterToTanksInterval) {
     addWaterToTanksInterval = setInterval(() => distributeWater(tanks), 50);
   }
   const tank = tanks[index];
-  console.log("startFilling tank", tank);
+  // console.log("startFilling tank", tank);
   if (!tank.addIntervalId) {
     tank.addIntervalId = setInterval(() => {
-      const intervalSeconds = 50 / 1000;
+      const intervalSeconds = 20 / 1000;
       const inflowRatePerSecond = 20;
       const addAmount = (inflowRatePerSecond * intervalSeconds) / 100;
       tank.buffer = tank.buffer + addAmount * 100;
-    }, 50);
+    }, 20);
   }
 };
 
 const stopFilling = (index) => {
-  console.log("stopFilling", index, tanks);
+  // console.log("stopFilling", index, tanks);
   const tank = tanks[index];
   if (tank.addIntervalId) {
-    console.log("stopFilling tank", tank);
+    // console.log("stopFilling tank", tank);
     clearInterval(tank.addIntervalId);
     tank.addIntervalId = null;
   }
@@ -91,11 +91,11 @@ const distributeWater = (tanks) => {
   const intervalSeconds = 50 / 1000;
   const outflowRatePerSecond = 2.5;
   const flowAmount = (100 * (outflowRatePerSecond * intervalSeconds)) / 100;
-  console.log("flowAmount", flowAmount);
+  // console.log("flowAmount", flowAmount);
 
   tanks.forEach((tank) => {
     if (tank.buffer > 0 && tank.level < 100 - flowAmount) {
-      console.log("addToTank", tank);
+      // console.log("addToTank", tank);
       const finalAddAmount = Math.min(tank.buffer, flowAmount);
       tank.level = Math.min(tank.level + finalAddAmount, 100);
       tank.buffer -= finalAddAmount;
@@ -122,13 +122,13 @@ const distributeWater = (tanks) => {
   });
 
   const isEquilibrium = tanks.every(
-    (tank) => Math.abs(tank.level - averageLevel) < 0.01
+    (tank) => Math.abs(tank.level - averageLevel) < 0.001
   );
 
   if (isEquilibrium) {
     clearInterval(addWaterToTanksInterval);
     addWaterToTanksInterval = null;
-    console.log("Equilibrium reached:", tanks);
+    // console.log("Equilibrium reached:", tanks);
   }
 };
 
