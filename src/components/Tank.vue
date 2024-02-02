@@ -115,4 +115,23 @@ const emitEmpty = () => {
   /* border-bottom-right-radius: 14px; */
   bottom: 0;
 }
+
+.addButton, .emptyButton {
+  /* shared styles for both buttons */
+  cursor: pointer; /* Changes the cursor to a pointer to indicate they are clickable */
+  transition: background-color 0.3s, transform 0.2s; /* Smooth transition for background-color and transform */
+}
+
+.addButton:active {
+  /* styles when the ADD button is clicked */
+  background-color: #019001; /* Slightly darker green to indicate it's active */
+  transform: scale(0.98); /* Slightly scale down the button to mimic a press */
+}
+
+.emptyButton:active {
+  /* styles when the EMPTY button is clicked */
+  color: #fff; /* Change text color to white */
+  background-color: #d10000; /* Dark red background to indicate it's active */
+  transform: scale(0.98); /* Slightly scale down the button to mimic a press */
+}
 </style>
